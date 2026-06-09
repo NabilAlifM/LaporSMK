@@ -6,11 +6,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
+
+    protected $primaryKey = 'id_user';
 
     /**
      * The attributes that are mass assignable.
@@ -18,9 +23,13 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'nis_nip',
+        'nama_lengkap',
+        'username',
         'email',
         'password',
+        'role',
+        'total_poin',
     ];
 
     /**
@@ -44,5 +53,37 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Determine if the user can access the Filament admin panel.
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * User's reports (pengaduan).
+     */
+    public function pengaduan(): HasMany
+    {
+        return $this->hasMany(Pengaduan::class, 'id_user', 'id_user');
+    }
+
+    /**
+     * User's activity logs.
+     */
+    public function logAktivitas(): HasMany
+    {
+        return $this->hasMany(LogAktivitasUser::class, 'id_user', 'id_user');
+    }
+
+    /**
+     * User's claimed vouchers.
+     */
+    public function voucherKlaim(): HasMany
+    {
+        return $this->hasMany(VoucherKlaim::class, 'id_user', 'id_user');
     }
 }
