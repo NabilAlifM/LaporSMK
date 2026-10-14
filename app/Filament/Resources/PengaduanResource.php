@@ -19,38 +19,44 @@ class PengaduanResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $modelLabel = 'Pengaduan';
+    protected static ?string $pluralModelLabel = 'Pengaduan';
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\DatePicker::make('tgl_kejadian')
-                    ->required()
-                    ->default(now()),
+                    ->disabled()
+                    ->label('Tanggal Kejadian'),
                 Forms\Components\Select::make('id_user')
                     ->relationship('user', 'nama_lengkap')
-                    ->searchable()
-                    ->preload()
-                    ->required()
+                    ->disabled()
                     ->label('Pelapor'),
                 Forms\Components\TextInput::make('judul_laporan')
-                    ->required()
-                    ->maxLength(150),
+                    ->disabled()
+                    ->label('Judul Laporan'),
                 Forms\Components\Select::make('status')
                     ->options([
                         'Pending' => 'Pending',
                         'Proses' => 'Proses',
+                        'Selesai' => 'Selesai',
                         'Ditolak' => 'Ditolak',
                     ])
-                    ->required()
-                    ->default('Pending'),
+                    ->required(),
                 Forms\Components\TextInput::make('poin_diberikan')
                     ->numeric()
                     ->default(0)
                     ->required()
                     ->label('Poin yang Diberikan'),
                 Forms\Components\Textarea::make('isi_laporan')
-                    ->required()
-                    ->columnSpanFull(),
+                    ->disabled()
+                    ->columnSpanFull()
+                    ->label('Isi Laporan'),
+                Forms\Components\Textarea::make('tanggapan')
+                    ->columnSpanFull()
+                    ->label('Tanggapan Admin')
+                    ->placeholder('Berikan tanggapan atau catatan tindak lanjut di sini...'),
             ]);
     }
 
@@ -89,11 +95,12 @@ class PengaduanResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // 
                 ]),
             ]);
     }
@@ -109,7 +116,6 @@ class PengaduanResource extends Resource
     {
         return [
             'index' => Pages\ListPengaduans::route('/'),
-            'create' => Pages\CreatePengaduan::route('/create'),
             'edit' => Pages\EditPengaduan::route('/{record}/edit'),
         ];
     }

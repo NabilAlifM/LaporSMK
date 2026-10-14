@@ -21,6 +21,7 @@ class Pengaduan extends Model
         'isi_laporan',
         'status',
         'poin_diberikan',
+        'tanggapan',
     ];
 
     protected static function boot()
@@ -30,6 +31,26 @@ class Pengaduan extends Model
         static::updating(function ($model) {
             if (auth()->check()) {
                 \Illuminate\Support\Facades\DB::statement('SET @current_admin_id = ?', [auth()->id()]);
+            }
+        });
+
+        static::updated(function ($model) {
+            // Check if status changed to 'Selesai'
+            if ($model->isDirty('status') && $model->status === 'Selesai') {
+                if ($model->poin_diberikan > 0) {
+                    $user = $model->user;
+                    if ($user) {
+                        $user->xp += $model->poin_diberikan;
+                        $user->total_poin += $model->poin_diberikan;
+                        
+                        $maxExp = $user->level * 1000;
+                        while ($user->xp >= $maxExp) {
+                            $user->level++;
+                            $maxExp = $user->level * 1000;
+                        }
+                        $user->save();
+                    }
+                }
             }
         });
     }

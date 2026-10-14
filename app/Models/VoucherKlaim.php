@@ -18,10 +18,12 @@ class VoucherKlaim extends Model
         'qr_code_token',
         'status_voucher',
         'tgl_tukar',
+        'tgl_expired',
     ];
 
     protected $casts = [
         'tgl_tukar' => 'datetime',
+        'tgl_expired' => 'datetime',
     ];
 
     /**

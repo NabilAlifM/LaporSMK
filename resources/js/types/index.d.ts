@@ -1,10 +1,14 @@
 import { Config } from 'ziggy-js';
 
 export interface User {
-    id: number;
-    name: string;
-    email: string;
+    id_user: number;
+    nis_nip: string;
+    nama_lengkap: string;
+    username: string;
+    email: string | null;
     email_verified_at?: string;
+    role: 'admin' | 'siswa';
+    total_poin: number;
 }
 
 export type PageProps<

@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasName;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements FilamentUser, HasName
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -29,7 +30,12 @@ class User extends Authenticatable implements FilamentUser
         'email',
         'password',
         'role',
+        'status',
         'total_poin',
+        'xp',
+        'level',
+        'rpg_class',
+        'avatar',
     ];
 
     /**
@@ -64,6 +70,14 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
+     * Get the user's name to display in the Filament admin panel.
+     */
+    public function getFilamentName(): string
+    {
+        return $this->nama_lengkap ?? $this->username ?? 'Admin';
+    }
+
+    /**
      * User's reports (pengaduan).
      */
     public function pengaduan(): HasMany
@@ -85,5 +99,15 @@ class User extends Authenticatable implements FilamentUser
     public function voucherKlaim(): HasMany
     {
         return $this->hasMany(VoucherKlaim::class, 'id_user', 'id_user');
+    }
+
+    /**
+     * User's completed quests.
+     */
+    public function quests()
+    {
+        return $this->belongsToMany(Quest::class, 'quest_user', 'user_id', 'quest_id')
+                    ->withPivot('completed_at')
+                    ->withTimestamps();
     }
 }

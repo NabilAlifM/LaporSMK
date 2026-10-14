@@ -1,22 +1,72 @@
 import { InertiaLinkProps, Link } from '@inertiajs/react';
+import { useState } from 'react';
+
+type TabKey = 'beranda' | 'lapor' | 'riwayat' | 'tukar' | 'kuis';
+
+interface NavLinkProps extends InertiaLinkProps {
+    active: boolean;
+    'data-tab'?: TabKey;
+}
+
+const TAB_COLORS: Record<TabKey, { bg: string; text: string; dot: string }> = {
+    beranda:  { bg: 'rgba(22,163,74,0.12)',   text: '#15803D',  dot: '#16A34A' },
+    lapor:    { bg: 'rgba(29,78,216,0.12)',   text: '#1E40AF',  dot: '#2563EB' },
+    riwayat:  { bg: 'rgba(109,40,217,0.12)',  text: '#5B21B6',  dot: '#7C3AED' },
+    tukar:    { bg: 'rgba(194,65,12,0.12)',   text: '#9A3412',  dot: '#EA580C' },
+    kuis:     { bg: 'rgba(190,24,93,0.12)',   text: '#9D174D',  dot: '#DB2777' },
+};
 
 export default function NavLink({
     active = false,
     className = '',
     children,
+    'data-tab': tabKey,
     ...props
-}: InertiaLinkProps & { active: boolean }) {
+}: NavLinkProps) {
+    const [hovered, setHovered] = useState(false);
+    const colors = tabKey ? TAB_COLORS[tabKey] : null;
+
+    const activeStyle = colors
+        ? { background: colors.bg, color: colors.text }
+        : { background: 'rgba(22,163,74,0.12)', color: '#15803D' };
+
+    const hoverStyle = colors
+        ? { background: colors.bg + '80', color: colors.text }
+        : { background: '#F3F4F6', color: '#374151' };
+
     return (
         <Link
             {...props}
-            className={
-                'inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none ' +
-                (active
-                    ? 'border-indigo-400 text-gray-900 focus:border-indigo-700 dark:border-indigo-600 dark:text-gray-100'
-                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 focus:border-gray-300 focus:text-gray-700 dark:text-gray-400 dark:hover:border-gray-700 dark:hover:text-gray-300 dark:focus:border-gray-700 dark:focus:text-gray-300') +
-                className
-            }
+            className={className}
+            style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 14px',
+                fontSize: '13px',
+                fontWeight: active ? 700 : 600,
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                letterSpacing: '0.01em',
+                textDecoration: 'none',
+                borderRadius: '50px',
+                border: 'none',
+                transition: 'all 0.18s ease',
+                ...(active ? activeStyle : hovered ? hoverStyle : { background: 'transparent', color: '#6B7280' }),
+                whiteSpace: 'nowrap',
+            }}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
         >
+            {active && colors && (
+                <span style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: colors.dot,
+                    flexShrink: 0,
+                    boxShadow: `0 0 6px ${colors.dot}`,
+                }} />
+            )}
             {children}
         </Link>
     );
